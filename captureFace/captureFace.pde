@@ -10,19 +10,12 @@ float distort(float c){
 }
 
 color crazyColor(float r, float g, float b){
-  float new_r = distort(r);
-  float new_g = distort(g);
-  float new_b = distort(b);
-  new_r = constrain(new_r, 0, 255);
-  new_g = constrain(new_g, 0, 255);
-  new_b = constrain(new_b, 0, 255);
-  color c = color(new_r, new_g, new_b);
-  return c;
+  return color(constrain(distort(r), 0, 255), constrain(distort(g), 0, 255), constrain(distort(b), 0, 255));
 }
 
 void setup() {
   size(640, 480);
-  video = new Capture(this, 640/2, 480/2);
+  video = new Capture(this, 640/2, 480/2, 5);
   opencv = new OpenCV(this, 640/2, 480/2);
   opencv.loadCascade(OpenCV.CASCADE_FRONTALFACE);  
 
@@ -40,30 +33,21 @@ void draw() {
   strokeWeight(3);
   Rectangle[] faces = opencv.detect();
   //println(faces.length);
-  float r,g,b;
   int faceX, faceY, pixelPos;
   for (int i = 0; i < faces.length; i++) {
     //println(faces[i].x + "," + faces[i].y);
     rect(faces[i].x, faces[i].y, faces[i].width, faces[i].height);
-    
     faceX = faces[i].x;
     faceY = faces[i].y;
-    pixelPos = faceX + faceY*video.width; //<>//
-    loadPixels(); //<>//
-    for (int fx = faceX; fx < faces[i].width; fx++){ //<>//
-      for (int fy = faceY; fy < faces[i].height; fy++){ //<>//
-        println("worked2"); //<>//
-        r = red(video.pixels[pixelPos]); //<>//
-        g = green(video.pixels[pixelPos]); //<>//
-        b = blue(video.pixels[pixelPos]); //<>//
+    pixelPos = faceX + faceY*video.width;
+    loadPixels();
+    for (int fx = faceX; fx < faceX + faces[i].width; fx++){
+      for (int fy = faceY; fy < faceY + faces[i].height; fy++){
         pixelPos = fx + fy*video.width;
-        pixels[pixelPos] = crazyColor(r,g,b);
-       
-        println(r + "," + g + "," + b); //<>//
-        println("coords" + fx + "," + fy); //<>//
+        pixels[pixelPos] = crazyColor(red(video.pixels[pixelPos]), green(video.pixels[pixelPos]), blue(video.pixels[pixelPos]));
       }
-    }
-  }
+    } //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>//
+  } //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>//
   updatePixels();
 }
 
