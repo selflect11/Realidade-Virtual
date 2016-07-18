@@ -5,10 +5,14 @@ import java.awt.*;
 Capture video;
 OpenCV opencv;
 
+float distort(float c){
+	return 255 - c;
+}
+
 color crazyColor(float r, float g, float b){
-  float new_r = 255 - r;
-  float new_g = 255 - g;
-  float new_b = 255 - b;
+  float new_r = distort(r);
+  float new_g = distort(g);
+  float new_b = distort(b);
   new_r = constrain(new_r, 0, 255);
   new_g = constrain(new_g, 0, 255);
   new_b = constrain(new_b, 0, 255);
