@@ -4,6 +4,9 @@ import java.awt.*;
 
 Capture video;
 OpenCV opencv;
+PImage img;
+int hueRange = 360;
+float hue, saturation, brightness = 0;
 // BOM : sin(PI * k/255)*(255 - k) -- Duas caras
 float distort(float k){
   return k;
@@ -19,10 +22,12 @@ color switchColor(int i){
 
 void setup() {
   size(640, 480);
-  video = new Capture(this, 640, 480, 10);
+  video = new Capture(this, 640, 480, 30);
   opencv = new OpenCV(this, 640, 480);
   opencv.loadCascade(OpenCV.CASCADE_FRONTALFACE);
+  colorMode(HSB, (hueRange - 1));
   video.start();
+  background(255);
 }
 
 void draw() {
@@ -40,16 +45,58 @@ int faceX, faceY, pixelPos;
     //rect(faces[i].x, faces[i].y, faces[i].width, faces[i].height);
     faceX = faces[i].x;
     faceY = faces[i].y;
+    //color c = video.get(faceX - 10, faceY - 10);
+    //color c2 = video.get(faceX + 10, faceY + 10);
     float centerX = (faceX + faces[i].width/2);
     float centerY = (faceY + faces[i].height/2);
+    
+    extractColorFromImage(int(faceX+20), int(faceY+20),int(faces[i].width-40), int(faces[i].height-20) );
+
     ellipse(centerX,centerY, 1.2*faces[i].width, 1.2*faces[i].height);
-    fill(constrain(255 * (i%3), 0, 255), constrain(255 * ((i+1)%3), 0, 255), constrain(255 * ((i-1)%3), 0, 255), 55);
+    fill(this.hue, this.saturation, this.brightness);
+    //fill(constrain(255 * (i%3), 0, 255), constrain(255 * ((i+1)%3), 0, 255), constrain(255 * ((i-1)%3), 0, 255), 55);
     //loadPixels();
     
   }
   //updatePixels();
+  //filter(BLUR, 6);
+  
 }
 
 void captureEvent(Capture c) {
   c.read();
 }
+
+private void extractColorFromImage(int faceX, int faceY, int width, int height) {
+    img = video.get(faceX, faceY, width, height);
+    image(img, 0,0);
+    int numberOfPixels = img.pixels.length;
+    int[] hues = new int[hueRange];
+    float[] saturations = new float[hueRange];
+    float[] brightnesses = new float[hueRange];
+
+    for (int i = 0; i < numberOfPixels; i++) {
+      int pixel = img.pixels[i];
+      int hue = Math.round(hue(pixel));
+      float saturation = saturation(pixel);
+      float brightness = brightness(pixel);
+      hues[hue]++;
+      saturations[hue] += saturation;
+      brightnesses[hue] += brightness;
+    }
+
+    // Find the most common hue.
+    int hueCount = hues[0];
+    int hue = 0;
+    for (int i = 1; i < hues.length; i++) {
+       if (hues[i] > hueCount) {
+        hueCount = hues[i];
+        hue = i;
+      }
+    }
+
+    // Set the vars for displaying the color.
+    this.hue = hue;
+    this.saturation = saturations[hue] / hueCount;
+    this.brightness = brightnesses[hue] / hueCount;
+  }
