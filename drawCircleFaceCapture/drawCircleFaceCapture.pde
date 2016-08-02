@@ -25,16 +25,17 @@ void setup() {
   video = new Capture(this, 640, 480, 30);
   opencv = new OpenCV(this, 640, 480);
   opencv.loadCascade(OpenCV.CASCADE_FRONTALFACE);
+   background(255,255,255);
   colorMode(HSB, (hueRange - 1));
   video.start();
-  background(255);
+
 }
 
 void draw() {
   //scale(2);
   opencv.loadImage(video);
   //image(video, 0, 0 );
-  background(255);
+  //background(255);
   noStroke();
   //stroke(0, 255, 0);
   //strokeWeight(3);
@@ -53,14 +54,14 @@ int faceX, faceY, pixelPos;
     //extractColorFromImage(int(faceX+20), int(faceY+20),int(faces[i].width-40), int(faces[i].height-20) );
       
     ellipse(centerX,centerY, 1.2*faces[i].width, 1.2*faces[i].height);
-    fill(getColor(int(faceX + 20), int(faceY + 20), int(faces[i].width - 40), int(faces[i].height - 20)));
+    fill(getColor(int(faceX + 20), int(faceY + 20), int(faces[i].width - 30), int(faces[i].height - 20)));
     //fill(this.hue, this.saturation, this.brightness, 55);
     //fill(constrain(255 * (i%3), 0, 255), constrain(255 * ((i+1)%3), 0, 255), constrain(255 * ((i-1)%3), 0, 255), 55);
     //loadPixels(); 
     
   }
   //updatePixels();
-  //filter(BLUR, 6);
+  filter(BLUR, 6);
   
 }
 
@@ -70,7 +71,7 @@ void captureEvent(Capture c) {
 
 private void extractColorFromImage(int faceX, int faceY, int w, int h) {
     img = video.get(faceX, faceY, w, h);
-    image(img, 0,0);
+    //image(img, 0,0);
     int numberOfPixels = img.pixels.length;
     int[] hues = new int[hueRange];
     float[] saturations = new float[hueRange];
@@ -104,7 +105,6 @@ private void extractColorFromImage(int faceX, int faceY, int w, int h) {
   
 color getColor(int faceX, int faceY, int w, int h) {
     img = video.get(faceX, faceY, w, h);
-    image(img, 0,0);
     int numberOfPixels = img.pixels.length;
     float r = 0, g = 0, b = 0;
 
