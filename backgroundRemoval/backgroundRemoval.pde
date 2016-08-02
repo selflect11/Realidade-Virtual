@@ -16,6 +16,7 @@ ArrayList greenBuckets[] = new ArrayList[numBuckets];
 ArrayList redBuckets[] = new ArrayList[numBuckets];
 //
 PImage textura;
+boolean started = false;
 
 void setup(){
    size(640, 480);
@@ -28,12 +29,10 @@ void setup(){
    textura = loadImage("CottonCandy_640.jpg");
    // Initializes bucket array
    for (int i = 0; i < numBuckets; i++){ 
-     redBuckets[i] = new ArrayList(); //<>//
+     redBuckets[i] = new ArrayList();
      blueBuckets[i] = new ArrayList();
      greenBuckets[i] = new ArrayList();
    }
-   // Background color matrix
-   int[] BCM = makeBackgroundColorMatrix(backgroundImages);
 }
 
 void draw(){
@@ -46,7 +45,7 @@ void draw(){
   
   if (n >= npast) {
     for (int i = 0; i < npast; i++)
-      backgroundImages[i].loadPixels();
+      backgroundImages[i].loadPixels(); //<>//
     
     // Desenha no background
     image(video, 0, 0);
@@ -83,17 +82,19 @@ void draw(){
     backgroundImages[ipast].updatePixels();
     ipast = (ipast+1)%npast;
   }
-  
-  
+  if (started == false && n >= npast){
+    // Background color matrix
+    BCM = makeBackgroundColorMatrix(backgroundImages);
+    started = true;
+  }
   updatePixels();
   blend(textura,0,0,width,height,0,0,width,height,DODGE);
 }
 
-void mousePressed(){
-//  backgroundImage.copy(video, 0, 0, video.width, video.height, 0, 0, video.width, video.height);
-//  backgroundImage.updatePixels();
-}
 
+/*******************************************************************/
+/********************AUXILIARY FUNCTIONS****************************/
+/*******************************************************************/
 int[] makeBackgroundColorMatrix(PImage[] backgroundImages){
     int[] bgMatrix = new int[video.width*video.height];
     color[] colorArr = new color[npast];
@@ -116,6 +117,7 @@ int[] makeBackgroundColorMatrix(PImage[] backgroundImages){
     return bgMatrix;
 }
 
+// Gets num of initialized elements on array
 int getArrayLen(Integer arr[]){
   int len = 0;
   for (int i = 0; i < arr.length; i++){
@@ -140,7 +142,7 @@ ArrayList[] getBucket(color[] colors, String code){
   for (int i = 0; i < colors.length; i++){
     // buckets -> [0,5), [5,10), [10,15), ... , [245,250), [250,255)
     // Gets index by the formula bgColor ~= 10*bucketIndex + 5
-    switch(code){ //<>//
+    switch(code){
       case "red":
         colorChannel = red(colors[i]);
       break;
@@ -163,9 +165,9 @@ float bucketAvg(ArrayList[] buckets){
       largestBucketLen = buckets[largestBucketIndex].size();
   float avgColor = 0.0;
   // Finds largest bucket
-  for (int i = 0; i < numBuckets; i++){ //<>//
+  for (int i = 0; i < numBuckets; i++){
     if (redBuckets[i].size() > largestBucketLen){
-        largestBucketLen = redBuckets[i].size(); //<>//
+        largestBucketLen = redBuckets[i].size();
         largestBucketIndex = i;
       }
   }

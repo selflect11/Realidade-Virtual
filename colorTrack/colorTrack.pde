@@ -1,6 +1,9 @@
 import processing.video.*;
 
-
+float threshold = 100;
+boolean isFirstClick = true;
+int[] xpos = new int[50];
+int[] ypos = new int[50];
 Capture video;
 color trackColor;
 
@@ -10,6 +13,10 @@ void setup(){
   trackColor = color(255, 0 , 0);
   smooth();
   video.start();
+  for (int i = 0; i < xpos.length; i++){
+    xpos[i] = 0;
+    ypos[i] = 0;
+  }
 }
 
 void draw(){
@@ -18,11 +25,15 @@ void draw(){
   }
   video.loadPixels();
   image(video, 0,0);
-
-  //
   float worldRecord = 500;
   int closestX = 0;
   int closestY = 0;
+  
+  // Rollback
+  for (int i = 0; i < xpos.length - 1; i++){
+    xpos[i] = xpos[i+1];
+    ypos[i] = ypos[i+1];
+  }
 
   for (int x=0; x < video.width; x++){
     for (int y=0; y < video.height; y++){
@@ -39,18 +50,40 @@ void draw(){
 
       //
       if (d < worldRecord){
-        worldRecord = d;
-        closestX = x;
-        closestY = y;
+        if (isFirstClick) { //<>//
+          worldRecord = d;
+          closestX = x;
+          closestY = y;
+          xpos[xpos.length - 1] = closestX;
+          ypos[ypos.length - 1] = closestY;
+          isFirstClick = false;
+        } else {
+          if (abs(closestX - x) < threshold && abs(closestY - y) < threshold){ //<>//
+            worldRecord = d;
+            closestX = x;
+            closestY = y;
+            xpos[xpos.length - 1] = closestX;
+            ypos[ypos.length - 1] = closestY;
+          } else {
+            xpos[xpos.length - 1] = closestX;
+            ypos[ypos.length - 1] = closestY;
+          }
+        }
+        
       }
     }
   }
 
     if (worldRecord < 10){
-      fill(trackColor);
-      strokeWeight(4.0);
-      stroke(0);
-      ellipse(closestX, closestY, 16, 16);
+      //fill(trackColor);
+      //strokeWeight(4.0);
+      //stroke(0);
+      //ellipse(closestX, closestY, 16, 16);
+      for (int i = 0; i < xpos.length - 1; i++){
+        noStroke();
+        fill(trackColor - i*5);
+        ellipse(xpos[i], ypos[i], 16, 16);
+      }
     }
 }
 
